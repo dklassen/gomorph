@@ -177,42 +177,42 @@ func (v HPValidator) From(source any) (any, error) {
 }
 
 func TestCharacterMapping_Complex(t *testing.T) {
-	nameMapping := gomorph.From[string, string](gomorph.NewField[string]("Name")).
-		To(gomorph.NewField[string]("FullName")).
+	nameMapping := gomorph.From[string, string]("Name").
+		To("FullName").
 		SkipConversion().SkipValidation().Build()
 
-	levelMapping := gomorph.From[string, int](gomorph.NewField[string]("Level")).
-		To(gomorph.NewField[int]("Level")).
+	levelMapping := gomorph.From[string, int]("Level").
+		To("Level").
 		ConvertWith(StringToIntConverter{}).
 		ValidateWith(LevelValidator{}).
 		Build()
 
-	hpMapping := gomorph.From[string, int](gomorph.NewField[string]("HP")).
-		To(gomorph.NewField[int]("HP")).
+	hpMapping := gomorph.From[string, int]("HP").
+		To("HP").
 		ConvertWith(StringToIntConverter{}).
 		ValidateWith(HPValidator{}).
 		Build()
 
-	isNPCMapping := gomorph.From[string, bool](gomorph.NewField[string]("IsNPC")).
-		To(gomorph.NewField[bool]("IsNPC")).
+	isNPCMapping := gomorph.From[string, bool]("IsNPC").
+		To("IsNPC").
 		ConvertWith(StringToBoolConverter{}).
 		SkipValidation().
 		Build()
 
-	classMapping := gomorph.From[string, CharacterClass](gomorph.NewField[string]("Class")).
-		To(gomorph.NewField[CharacterClass]("CharClass")).
+	classMapping := gomorph.From[string, CharacterClass]("Class").
+		To("CharClass").
 		ConvertWith(StringToClassConverter{}).
 		SkipValidation().
 		Build()
 
-	raceMapping := gomorph.From[string, Race](gomorph.NewField[string]("Race")).
-		To(gomorph.NewField[Race]("Race")).
+	raceMapping := gomorph.From[string, Race]("Race").
+		To("Race").
 		ConvertWith(StringToRaceConverter{}).
 		SkipValidation().
 		Build()
 
-	inventoryMapping := gomorph.From[string, []string](gomorph.NewField[string]("Inventory")).
-		To(gomorph.NewField[[]string]("Items")).
+	inventoryMapping := gomorph.From[string, []string]("Inventory").
+		To("Items").
 		ConvertWith(CSVToSliceConverter{}).
 		SkipValidation().
 		Build()

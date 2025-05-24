@@ -51,11 +51,9 @@ func (f failingValidator) TargetType() reflect.Type { return reflect.TypeOf(0) }
 
 func TestFieldMappingBuilder_NoConverter(t *testing.T) {
 	testValue := "noop"
-	src := gomorph.NewField[string]("src")
-	dst := gomorph.NewField[string]("dst")
 
-	mapping := gomorph.From[string, string](src).
-		To(dst).
+	mapping := gomorph.From[string, string]("src").
+		To("dst").
 		SkipConversion().
 		ValidateWith(alwaysPassValidator{}).
 		Build()
@@ -72,11 +70,8 @@ func TestFieldMappingBuilder_NoConverter(t *testing.T) {
 }
 
 func TestFieldMappingBuilder_BasicFlow(t *testing.T) {
-	src := gomorph.NewField[int]("src")
-	dst := gomorph.NewField[string]("dst")
-
-	mapping := gomorph.From[int, string](src).
-		To(dst).
+	mapping := gomorph.From[int, string]("src").
+		To("dst").
 		ConvertWith(intToStringConverter{}).
 		ValidateWith(alwaysPassValidator{}).
 		Build()
@@ -103,11 +98,8 @@ func TestFieldMappingBuilder_ConversionError(t *testing.T) {
 		assert.Contains(t, r.(string), "first mapper must accept string, got int")
 	}()
 
-	src := gomorph.NewField[string]("src")
-	dst := gomorph.NewField[string]("dst")
-
-	mapping := gomorph.From[string, string](src).
-		To(dst).
+	mapping := gomorph.From[string, string]("src").
+		To("dst").
 		ConvertWith(intToStringConverter{}). // intentionally wrong type
 		ValidateWith(alwaysPassValidator{}).
 		Build()
@@ -116,13 +108,10 @@ func TestFieldMappingBuilder_ConversionError(t *testing.T) {
 }
 
 func TestFieldMappingBuilder_ValidatorFails(t *testing.T) {
-	src := gomorph.NewField[int]("src")
-	dst := gomorph.NewField[int]("dst")
-
 	validator := failingValidator{}
 
-	mapping := gomorph.From[int, int](src).
-		To(dst).
+	mapping := gomorph.From[int, int]("src").
+		To("dst").
 		SkipConversion().
 		ValidateWith(validator).
 		Build()

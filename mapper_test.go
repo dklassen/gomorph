@@ -367,12 +367,9 @@ func (o *ComplexOutput) SetMappedInputString(s string) {
 }
 
 func TestStructMapper_MapSettersGetters(t *testing.T) {
-	getInputStringField := gomorph.NewField[string]("GetInputString")
-	setMappedInputStringField := gomorph.NewField[string]("SetMappedInputString")
-
 	fieldMappings := []gomorph.FieldMapper{
-		gomorph.From[string, string](getInputStringField).
-			To(setMappedInputStringField).
+		gomorph.From[string, string]("GetInputString").
+			To("SetMappedInputString").
 			ConvertWith(gomorph.IdentityMapper[string]{}).
 			SkipValidation().
 			Build(),
@@ -397,12 +394,6 @@ type SomeStruct struct {
 }
 
 func TestStructMapper_MapAMapToStruct(t *testing.T) {
-	recordInputStringField := gomorph.NewField[any]("InputString")
-	recordInputIntField := gomorph.NewField[int]("InputInt")
-
-	outputStringField := gomorph.NewField[string]("SomeField")
-	outputIntField := gomorph.NewField[int]("SomeInt")
-
 	// Define the input and output structs
 	input := map[string]any{
 		"InputString": "hello",
@@ -410,13 +401,13 @@ func TestStructMapper_MapAMapToStruct(t *testing.T) {
 	}
 
 	fields := []gomorph.FieldMapper{
-		gomorph.From[any, string](recordInputStringField).
-			To(outputStringField).
+		gomorph.From[any, string]("InputString").
+			To("SomeField").
 			SkipConversion().
 			SkipValidation().
 			Build(),
-		gomorph.From[int, int](recordInputIntField).
-			To(outputIntField).
+		gomorph.From[int, int]("InputInt").
+			To("SomeInt").
 			SkipConversion().
 			SkipValidation().
 			Build(),

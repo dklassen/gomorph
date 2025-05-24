@@ -3,7 +3,7 @@ package gomorph
 // NOTE:: We can change but this is to help with making sure people do the right thing conciously
 // and not accidentally mix up the steps.
 type FromStep[TSource, TDest any] interface {
-	To(field FieldDef[TDest]) ConvertStep[TSource, TDest]
+	To(toField string) ConvertStep[TSource, TDest]
 }
 
 type ConvertStep[TSource, TDest any] interface {
@@ -43,8 +43,10 @@ type FieldMappingBuilder[TSource, TDest any] struct {
 // Example:
 //
 //	builder := gomorph.From(gomorph.NewField[string]("source_name"))
-func From[TSource, TDest any](field FieldDef[TSource]) FromStep[TSource, TDest] {
-	return &FieldMappingBuilder[TSource, TDest]{from: field}
+func From[TSource, TDest any](fromField string) FromStep[TSource, TDest] {
+	return &FieldMappingBuilder[TSource, TDest]{
+		from: NewField[TSource](fromField),
+	}
 }
 
 // To sets the destination field for the FieldMappingBuilder.
@@ -53,8 +55,8 @@ func From[TSource, TDest any](field FieldDef[TSource]) FromStep[TSource, TDest] 
 // Example:
 //
 //	builder := gomorph.From(sourceField).To(targetField)
-func (b *FieldMappingBuilder[TSource, TDest]) To(field FieldDef[TDest]) ConvertStep[TSource, TDest] {
-	b.to = field
+func (b *FieldMappingBuilder[TSource, TDest]) To(toField string) ConvertStep[TSource, TDest] {
+	b.to = NewField[TDest](toField)
 	return b
 }
 
