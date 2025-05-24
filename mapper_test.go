@@ -340,7 +340,7 @@ func TestStructMapper_MapExportedFields(t *testing.T) {
 			InputInt:    targetInt,
 		}
 
-		result, err := outputMapper.Map(subject)
+		result, err := outputMapper.From(subject)
 		require.NoError(t, err)
 		require.Equal(t, targetString, result.MappedInputString)
 		require.Equal(t, targetInt, result.MappedInputInt)
@@ -385,7 +385,7 @@ func TestStructMapper_MapSettersGetters(t *testing.T) {
 			unexportedStringField: "Foo",
 		}
 
-		result, err := outputMapper.Map(subject)
+		result, err := outputMapper.From(subject)
 		require.NoError(t, err)
 		require.Equal(t, "Foo", result.mappedInputString)
 	})
@@ -424,7 +424,7 @@ func TestStructMapper_MapAMapToStruct(t *testing.T) {
 
 	output := gomorph.NewStructMapper[map[string]any, SomeStruct](fields)
 
-	result, err := output.Map(input)
+	result, err := output.From(input)
 	require.NoError(t, err)
 	require.Equal(t, "hello", result.SomeField)
 	require.Equal(t, 42, result.SomeInt)

@@ -5,7 +5,6 @@ import (
 	"reflect"
 )
 
-
 type Record = map[string]any
 
 type Mapper[TSource, TDest any] interface {
@@ -249,12 +248,12 @@ type StructMapper[TSource, TDest any] struct {
 //	return b.fieldMappings[dest]
 //}
 
-func (b *StructMapper[TSource, TDest]) From(source TSource) (TDest, error) {
-	var zero TDest
-	return zero, fmt.Errorf("From must be implemented by concrete mapper")
-}
+// func (b *StructMapper[TSource, TDest]) From(source TSource) (TDest, error) {
+// 	var zero TDest
+// 	return zero, fmt.Errorf("From must be implemented by concrete mapper")
+// }
 
-func (b *StructMapper[TSource, TDest]) Map(input TSource) (TDest, error) {
+func (b *StructMapper[TSource, TDest]) From(input TSource) (TDest, error) {
 	var output TDest
 	err := mapStruct(input, &output, b.fieldMappings)
 	if err != nil {
