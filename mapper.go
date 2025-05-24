@@ -241,18 +241,6 @@ type StructMapper[TSource, TDest any] struct {
 	fieldMappings []FieldMapper
 }
 
-// TODO:: Allow type Keys to be used as keys
-// THis way we can lookup by required struct type to avoid having to know the name of thing we
-// are looking up
-//func (b *StructMapper[TSource, TDest]) Using(dest string) FieldMapper {
-//	return b.fieldMappings[dest]
-//}
-
-// func (b *StructMapper[TSource, TDest]) From(source TSource) (TDest, error) {
-// 	var zero TDest
-// 	return zero, fmt.Errorf("From must be implemented by concrete mapper")
-// }
-
 func (b *StructMapper[TSource, TDest]) From(input TSource) (TDest, error) {
 	var output TDest
 	err := mapStruct(input, &output, b.fieldMappings)
@@ -313,7 +301,6 @@ func getFieldValueByName(obj any, name string) (any, error) {
 
 	if val.Kind() == reflect.Map {
 		if field := val.MapIndex(reflect.ValueOf(name)); field.IsValid() {
-			fmt.Println("found field", field)
 			return field.Interface(), nil
 		}
 	}
