@@ -77,7 +77,8 @@ func (t TypeMap[TSource, TDest]) TargetType() reflect.Type {
 	return reflect.TypeOf(zero)
 }
 
-// Slice[T] is a type constraint that restricts T to be a slice of any type.
+// Slice[T] is a type constraint that restricts T to be a slice of any type. This allows
+// us to operate over slices that are semantically equivalent.
 type Slice[T any] interface {
 	~[]T
 }
@@ -108,18 +109,18 @@ func NewSliceMapper[TSource Slice[T], TDest Slice[D], T, D any](elementMapper Ty
 	}
 }
 
-func (stm *SliceMapper[Tsource, TDest, T, D]) SourceType() reflect.Type {
-	var zero Tsource
+func (stm *SliceMapper[TSource, TDest, T, D]) SourceType() reflect.Type {
+	var zero TSource
 	return reflect.TypeOf(zero)
 }
 
-func (stm *SliceMapper[Tsource, TDest, T, D]) TargetType() reflect.Type {
+func (stm *SliceMapper[TSource, TDest, T, D]) TargetType() reflect.Type {
 	var zero T
 	return reflect.TypeOf(zero)
 }
 
 func (stm *SliceMapper[TSource, TDest, T, D]) From(source any) (any, error) {
-	castedSource, ok := source.([]T)
+	castedSource, ok := source.(TSource)
 	if !ok {
 		return nil, fmt.Errorf("invalid source type: expected %T, got %T", *new(TSource), source)
 	}
