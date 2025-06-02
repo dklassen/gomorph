@@ -16,19 +16,26 @@ type testDest struct {
 	Result int
 }
 
-func double(s testSource) testDest {
+func double(s testSource, _ any) testDest {
 	return testDest{Result: s.Value * 2}
 }
 
-func triple(s testSource) testDest {
+func triple(s testSource, _ any) testDest {
 	return testDest{Result: s.Value * 3}
 }
 
 func TestGenericMapMapper(t *testing.T) {
-	transforms := gomorph.TransformMap[string, testSource, testDest]{
-		"double": double,
-		"triple": triple,
+	transforms := gomorph.TransformMap[string, testSource, testDest, any]{
+		"double": gomorph.TransformEntry[testSource, testDest, any]{
+			Transform: double,
+			Meta:      nil, // No additional metadata needed for this example
+		},
+		"triple": gomorph.TransformEntry[testSource, testDest, any]{
+			Transform: triple,
+			Meta:      nil, // No additional metadata needed for this example
+		},
 	}
+
 	mapper := gomorph.NewTransformMapper(
 		transforms,
 		func(s testSource) string { return s.Op },
