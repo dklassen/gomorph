@@ -16,12 +16,12 @@ type testDest struct {
 	Result int
 }
 
-func double(s testSource, _ any) testDest {
-	return testDest{Result: s.Value * 2}
+func double(s testSource, _ any) (testDest, error) {
+	return testDest{Result: s.Value * 2}, nil
 }
 
-func triple(s testSource, _ any) testDest {
-	return testDest{Result: s.Value * 3}
+func triple(s testSource, _ any) (testDest, error) {
+	return testDest{Result: s.Value * 3}, nil
 }
 
 func TestGenericMapMapper(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 )
 
 // Generic transformation function type
-type TransformFunc[TSource any, TDest any, TMeta any] func(TSource, TMeta) TDest
+type TransformFunc[TSource any, TDest any, TMeta any] func(TSource, TMeta) (TDest, error)
 
 type TransformEntry[TSource any, TDest any, TMeta any] struct {
 	Transform TransformFunc[TSource, TDest, TMeta]
@@ -45,12 +45,12 @@ func NewTransformMapper[K comparable, TSource any, TDest any, TMeta any](
 func (m *TransformMapper[K, TSource, TDest, TMeta]) From(source any) (any, error) {
 	s, ok := source.(TSource)
 	if !ok {
-		return nil,  fmt.Errorf("expected %T, got %T", *new(TSource), source)
+		return nil, fmt.Errorf("expected %T, got %T", *new(TSource), source)
 	}
 	key := m.keyFunc(s)
 	entry, ok := m.transforms[key]
 	if !ok {
 		return nil, fmt.Errorf("no transform for key: %v", key)
 	}
-	return entry.Transform(s, entry.Meta), nil
+	return entry.Transform(s, entry.Meta)
 }
