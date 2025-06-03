@@ -43,33 +43,24 @@ func TestGenericMapMapper(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   any
+		input   testSource
 		want    testDest
-		wantErr string // empty means no error expected
+		wantErr string
 	}{
 		{
-			"should double based on Op value",
-			testSource{Value: 2, Op: "double"},
-			testDest{Result: 4},
-			"",
+			name:  "should double based on Op value",
+			input: testSource{Value: 2, Op: "double"},
+			want:  testDest{Result: 4},
 		},
 		{
-			"should triple based on Op value",
-			testSource{Value: 3, Op: "triple"},
-			testDest{Result: 9},
-			"",
+			name:  "should triple based on Op value",
+			input: testSource{Value: 3, Op: "triple"},
+			want:  testDest{Result: 9},
 		},
 		{
-			"should raise error for invalid type",
-			"not a testSource",
-			testDest{},
-			"expected gomorph_test.testSource, got string",
-		},
-		{
-			"should raise error for no transform key",
-			testSource{Value: 1, Op: "unknown"},
-			testDest{},
-			"no transform for key: unknown",
+			name:    "should raise error for no transform key",
+			input:   testSource{Value: 1, Op: "unknown"},
+			wantErr: "no transform for key: unknown",
 		},
 	}
 

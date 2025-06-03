@@ -42,15 +42,12 @@ func NewTransformMapper[K comparable, TSource any, TDest any, TMeta any](
 	return &TransformMapper[K, TSource, TDest, TMeta]{transforms: transforms, keyFunc: keyFunc}
 }
 
-func (m *TransformMapper[K, TSource, TDest, TMeta]) From(source any) (any, error) {
-	s, ok := source.(TSource)
-	if !ok {
-		return nil, fmt.Errorf("expected %T, got %T", *new(TSource), source)
-	}
-	key := m.keyFunc(s)
+func (m *TransformMapper[K, TSource, TDest, TMeta]) From(source TSource) (TDest, error) {
+	key := m.keyFunc(source)
 	entry, ok := m.transforms[key]
 	if !ok {
-		return nil, fmt.Errorf("no transform for key: %v", key)
+		var zero TDest
+		return zero, fmt.Errorf("no transform for key: %v", key)
 	}
-	return entry.Transform(s, entry.Meta)
+	return entry.Transform(source, entry.Meta)
 }
