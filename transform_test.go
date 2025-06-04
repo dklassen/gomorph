@@ -37,8 +37,13 @@ func TestTransformMapSupportedOperations(t *testing.T) {
 		},
 	}
 
+	mapper := gomorph.NewTransformMapper(
+		transforms,
+		func(s testSource) string { return s.Op },
+	)
+
 	expectedKeys := []string{"double", "triple"}
-	keys := transforms.SupportedOperations()
+	keys := mapper.SupportedOperations()
 
 	sort.Strings(expectedKeys)
 	sort.Strings(keys)

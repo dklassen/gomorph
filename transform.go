@@ -15,18 +15,6 @@ type TransformEntry[TSource any, TDest any, TMeta any] struct {
 // Generic transformation map type
 type TransformMap[K comparable, TSource any, TDest any, TMeta any] map[K]TransformEntry[TSource, TDest, TMeta]
 
-//	SupportedOperations returns a slice of keys representing the operations that are registered in the TransformMap.
-//
-// Returns an unordered list of keys .
-func (m TransformMap[K, TSource, TDest, TMeta]) SupportedOperations() []K {
-	keys := make([]K, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	return keys
-}
-
 // Generic mapper using a key to select the transformation and perform dispatch
 // on it. This is really useful for cases where you have a full struct transformation.
 
@@ -52,6 +40,14 @@ func NewTransformMapper[K comparable, TSource any, TDest any, TMeta any](
 	keyFunc func(TSource) K,
 ) *TransformMapper[K, TSource, TDest, TMeta] {
 	return &TransformMapper[K, TSource, TDest, TMeta]{transforms: transforms, keyFunc: keyFunc}
+}
+
+func (m *TransformMapper[K, TSource, TDest, TMeta]) SupportedOperations() []K {
+	keys := make([]K, 0, len(m.transforms))
+	for k := range m.transforms {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func (m *TransformMapper[K, TSource, TDest, TMeta]) From(source TSource) (TDest, error) {
