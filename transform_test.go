@@ -3,6 +3,7 @@ package gomorph_test
 import (
 	"github.com/dklassen/gomorph"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -22,6 +23,29 @@ func double(s testSource, _ any) (testDest, error) {
 
 func triple(s testSource, _ any) (testDest, error) {
 	return testDest{Result: s.Value * 3}, nil
+}
+
+func TestTransformMapSupportedOperations(t *testing.T) {
+	transforms := gomorph.TransformMap[string, testSource, testDest, any]{
+		"double": gomorph.TransformEntry[testSource, testDest, any]{
+			Transform: double,
+			Meta:      nil, // No additional metadata needed for this example
+		},
+		"triple": gomorph.TransformEntry[testSource, testDest, any]{
+			Transform: triple,
+			Meta:      nil, // No additional metadata needed for this example
+		},
+	}
+
+	expectedKeys := []string{"double", "triple"}
+	keys := transforms.SupportedOperations()
+
+	sort.Strings(expectedKeys)
+	sort.Strings(keys)
+
+	if !reflect.DeepEqual(keys, expectedKeys) {
+		t.Errorf("expected keys %v, got %v", expectedKeys, keys)
+	}
 }
 
 func TestGenericMapMapper(t *testing.T) {
