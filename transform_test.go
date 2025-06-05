@@ -26,19 +26,16 @@ func triple(s testSource, _ any) (testDest, error) {
 }
 
 func TestTransformMapSupportedOperations(t *testing.T) {
-	transforms := gomorph.TransformMap[string, testSource, testDest, any]{
-		"double": gomorph.TransformEntry[testSource, testDest, any]{
-			Transform: double,
-			Meta:      nil, // No additional metadata needed for this example
+	transforms := gomorph.NewMapResolver(
+		map[string]gomorph.TransformFunc[testSource, testDest, any]{
+			"double": double,
+			"triple": triple,
 		},
-		"triple": gomorph.TransformEntry[testSource, testDest, any]{
-			Transform: triple,
-			Meta:      nil, // No additional metadata needed for this example
-		},
-	}
+	)
 
 	mapper := gomorph.NewTransformMapper(
 		transforms,
+		nil, // No additional metadata needed for this example
 		func(s testSource) string { return s.Op },
 	)
 
@@ -54,19 +51,16 @@ func TestTransformMapSupportedOperations(t *testing.T) {
 }
 
 func TestGenericMapMapper(t *testing.T) {
-	transforms := gomorph.TransformMap[string, testSource, testDest, any]{
-		"double": gomorph.TransformEntry[testSource, testDest, any]{
-			Transform: double,
-			Meta:      nil, // No additional metadata needed for this example
+	transforms := gomorph.NewMapResolver(
+		map[string]gomorph.TransformFunc[testSource, testDest, any]{
+			"double": double,
+			"triple": triple,
 		},
-		"triple": gomorph.TransformEntry[testSource, testDest, any]{
-			Transform: triple,
-			Meta:      nil, // No additional metadata needed for this example
-		},
-	}
+	)
 
 	mapper := gomorph.NewTransformMapper(
 		transforms,
+		nil, // No additional metadata needed for this example
 		func(s testSource) string { return s.Op },
 	)
 

@@ -4,16 +4,39 @@ import (
 	"fmt"
 )
 
+type KeyLister[K comparable] interface {
+	Keys() []K
+}
+
 // Generic transformation function type
 type TransformFunc[TSource any, TDest any, TMeta any] func(TSource, TMeta) (TDest, error)
 
-type TransformEntry[TSource any, TDest any, TMeta any] struct {
-	Transform TransformFunc[TSource, TDest, TMeta]
-	Meta      TMeta
+type TransformResolver[K comparable, TSource any, TDest any, TMeta any] interface {
+	Resolve(key K) (TransformFunc[TSource, TDest, TMeta], bool)
 }
 
-// Generic transformation map type
-type TransformMap[K comparable, TSource any, TDest any, TMeta any] map[K]TransformEntry[TSource, TDest, TMeta]
+type MapResolver[K comparable, TSource any, TDest any, TMeta any] struct {
+	mapping map[K]TransformFunc[TSource, TDest, TMeta]
+}
+
+func NewMapResolver[K comparable, TSource any, TDest any, TMeta any](
+	mapping map[K]TransformFunc[TSource, TDest, TMeta],
+) *MapResolver[K, TSource, TDest, TMeta] {
+	return &MapResolver[K, TSource, TDest, TMeta]{mapping: mapping}
+}
+
+func (r *MapResolver[K, TSource, TDest, TMeta]) Resolve(key K) (TransformFunc[TSource, TDest, TMeta], bool) {
+	transform, ok := r.mapping[key]
+	return transform, ok
+}
+
+func (r *MapResolver[K, TSource, TDest, TMeta]) Keys() []K {
+	keys := make([]K, 0, len(r.mapping))
+	for k := range r.mapping {
+		keys = append(keys, k)
+	}
+	return keys
+}
 
 // Generic mapper using a key to select the transformation and perform dispatch
 // on it. This is really useful for cases where you have a full struct transformation.
@@ -31,31 +54,41 @@ type TransformMap[K comparable, TSource any, TDest any, TMeta any] map[K]Transfo
 //	mapper := NewTransformMapper(transforms, func(i Input) string { return i.Kind })
 //	out, err := mapper.From(input)
 type TransformMapper[K comparable, TSource any, TDest any, TMeta any] struct {
-	transforms TransformMap[K, TSource, TDest, TMeta]
-	keyFunc    func(TSource) K
+	resolver TransformResolver[K, TSource, TDest, TMeta]
+	meta     TMeta
+	keyFunc  func(TSource) K
 }
 
 func NewTransformMapper[K comparable, TSource any, TDest any, TMeta any](
-	transforms TransformMap[K, TSource, TDest, TMeta],
+	resolver TransformResolver[K, TSource, TDest, TMeta],
+	meta TMeta,
 	keyFunc func(TSource) K,
 ) *TransformMapper[K, TSource, TDest, TMeta] {
-	return &TransformMapper[K, TSource, TDest, TMeta]{transforms: transforms, keyFunc: keyFunc}
+
+	return &TransformMapper[K, TSource, TDest, TMeta]{
+		resolver: resolver,
+		meta:     meta,
+		keyFunc:  keyFunc,
+	}
 }
 
 func (m *TransformMapper[K, TSource, TDest, TMeta]) SupportedOperations() []K {
-	keys := make([]K, 0, len(m.transforms))
-	for k := range m.transforms {
-		keys = append(keys, k)
+	if lister, ok := m.resolver.(KeyLister[K]); ok {
+		return lister.Keys()
 	}
-	return keys
+	return nil
+}
+
+func (m *TransformMapper[K, TSource, TDest, TMeta]) Meta() TMeta {
+	return m.meta
 }
 
 func (m *TransformMapper[K, TSource, TDest, TMeta]) From(source TSource) (TDest, error) {
 	key := m.keyFunc(source)
-	entry, ok := m.transforms[key]
+	transform, ok := m.resolver.Resolve(key)
 	if !ok {
 		var zero TDest
 		return zero, fmt.Errorf("no transform for key: %v", key)
 	}
-	return entry.Transform(source, entry.Meta)
+	return transform(source, m.meta)
 }
